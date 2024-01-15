@@ -1,0 +1,71 @@
+// Sample data
+const data = [
+  { reason: 'Abandoned Bicycle', count: 1318 },
+  { reason: 'Administrative & General Requests', count: 2025 },
+  { reason: 'Air Pollution Control', count: 35 },
+  { reason: 'Alert Boston', count: 3 },
+  { reason: 'Animal Issues', count: 4155 },
+  { reason: 'Billing', count: 6 },
+  { reason: 'Boston Bikes', count: 64 },
+  { reason: 'Bridge Maintenance', count: 8 },
+  { reason: 'Building', count: 5209 },
+  { reason: 'Catchbasin', count: 621 }
+];
+
+// Extracting labels and data from the array
+const labels = data.map(item => item.reason);
+const counts = data.map(item => item.count);
+
+// Set up SVG dimensions
+const width = 600;
+const height = 400;
+const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+
+// Create SVG element
+const svg = d3.select("#barChart")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// Create scales
+const xScale = d3.scaleBand()
+  .domain(labels)
+  .range([0, width])
+  .padding(0.1);
+
+const yScale = d3.scaleLinear()
+  .domain([0, d3.max(counts)])
+  .range([height, 0]);
+
+// Create bars
+svg.selectAll("rect")
+  .data(data)
+  .enter().append("rect")
+  .attr("x", d => xScale(d.reason))
+  .attr("y", d => yScale(d.count))
+  .attr("width", xScale.bandwidth())
+  .attr("height", d => height - yScale(d.count));
+
+// Add labels
+svg.selectAll("text")
+  .data(data)
+  .enter().append("text")
+  .attr("x", d => xScale(d.reason) + xScale.bandwidth() / 2)
+  .attr("y", d => yScale(d.count) - 5)
+  .text(d => d.count)
+  .attr("text-anchor", "middle")
+  .attr("font-size", "12px")
+  .attr("fill", "#fff");
+
+// Create axes
+const xAxis = d3.axisBottom(xScale);
+const yAxis = d3.axisLeft(yScale);
+
+svg.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(xAxis);
+
+svg.append("g")
+  .call(yAxis);
+
